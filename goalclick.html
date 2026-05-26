@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GoalClick</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f7; color: #1d1d1f; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+  .container { text-align: center; }
+  h1 { font-size: 1.6rem; margin-bottom: 2rem; letter-spacing: -0.02em; }
+  .setup { display: flex; gap: 0.75rem; justify-content: center; align-items: center; margin-bottom: 2rem; }
+  .setup input { width: 140px; padding: 0.6rem 1rem; border: 1px solid #d2d2d7; border-radius: 10px; font-size: 1.1rem; text-align: center; outline: none; }
+  .setup input:focus { border-color: #0071e3; box-shadow: 0 0 0 3px rgba(0,113,227,0.15); }
+  .btn { padding: 0.6rem 1.4rem; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+  .btn-set { background: #0071e3; color: #fff; }
+  .btn-set:hover { background: #0077ed; }
+  .btn-reset { background: #e8e8ed; color: #1d1d1f; font-size: 0.85rem; margin-top: 1.5rem; }
+  .btn-reset:hover { background: #d2d2d7; }
+  .counter-area { display: none; flex-direction: column; align-items: center; }
+  .counter-area.active { display: flex; }
+  .number { font-size: 6rem; font-weight: 700; letter-spacing: -0.04em; line-height: 1; margin-bottom: 0.5rem; transition: transform 0.1s; }
+  .number.bump { transform: scale(0.95); }
+  .progress-wrap { width: 300px; height: 8px; background: #e8e8ed; border-radius: 4px; overflow: hidden; margin-bottom: 1.5rem; }
+  .progress-bar { height: 100%; background: #0071e3; border-radius: 4px; transition: width 0.3s; }
+  .click-btn { width: 160px; height: 160px; border-radius: 50%; border: none; background: linear-gradient(135deg, #0071e3, #005bb5); color: #fff; font-size: 1.3rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 20px rgba(0,113,227,0.35); transition: all 0.15s; user-select: none; }
+  .click-btn:hover { transform: scale(1.05); box-shadow: 0 6px 28px rgba(0,113,227,0.45); }
+  .click-btn:active { transform: scale(0.97); }
+  .click-btn:disabled { background: linear-gradient(135deg, #34c759, #248a3d); box-shadow: 0 4px 20px rgba(52,199,89,0.35); cursor: default; font-size: 1.1rem; }
+  .click-btn:disabled:hover { transform: none; }
+  .info { font-size: 0.85rem; color: #6e6e73; margin-top: 1rem; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>GoalClick</h1>
+
+  <div class="setup" id="setup">
+    <input type="number" id="goalInput" placeholder="Enter a number" min="1" />
+    <button class="btn btn-set" onclick="setGoal()">Start</button>
+  </div>
+
+  <div class="counter-area" id="counterArea">
+    <div class="number" id="display">0</div>
+    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+    <button class="click-btn" id="clickBtn" onclick="doClick()">Click</button>
+    <div class="info" id="info"></div>
+    <button class="btn btn-reset" onclick="reset()">Reset</button>
+  </div>
+</div>
+
+<script>
+let goal = 0;
+let current = 0;
+
+const goalInput = document.getElementById('goalInput');
+const setup = document.getElementById('setup');
+const counterArea = document.getElementById('counterArea');
+const display = document.getElementById('display');
+const progressBar = document.getElementById('progressBar');
+const clickBtn = document.getElementById('clickBtn');
+const info = document.getElementById('info');
+
+goalInput.addEventListener('keydown', e => { if (e.key === 'Enter') setGoal(); });
+
+function setGoal() {
+  const val = parseInt(goalInput.value);
+  if (!val || val < 1) return;
+  goal = val;
+  current = val;
+  setup.style.display = 'none';
+  counterArea.classList.add('active');
+  updateDisplay();
+}
+
+function doClick() {
+  if (current <= 0) return;
+  current--;
+  display.classList.add('bump');
+  setTimeout(() => display.classList.remove('bump'), 100);
+  updateDisplay();
+}
+
+function updateDisplay() {
+  display.textContent = current;
+  const pct = ((goal - current) / goal) * 100;
+  progressBar.style.width = pct + '%';
+  info.textContent = `${goal - current} of ${goal} clicks done`;
+
+  if (current === 0) {
+    clickBtn.disabled = true;
+    clickBtn.textContent = 'Done!';
+    progressBar.style.background = '#34c759';
+    info.textContent = `All ${goal} clicks complete!`;
+  }
+}
+
+function reset() {
+  goal = 0;
+  current = 0;
+  goalInput.value = '';
+  setup.style.display = 'flex';
+  counterArea.classList.remove('active');
+  clickBtn.disabled = false;
+  clickBtn.textContent = 'Click';
+  progressBar.style.background = '#0071e3';
+  progressBar.style.width = '0%';
+}
+</script>
+
+</body>
+</html>
